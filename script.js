@@ -5,9 +5,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Initialize EmailJS ---
-  emailjs.init('UFcqwZcNawQ_Amo0D');
-
   // --- 1. Navbar Scroll Effect ---
   const navbar = document.getElementById('navbar');
   const handleScroll = () => {
@@ -92,11 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg> Expand All';
   }
 
-  // --- 6. Contact Form Handler (EmailJS) ---
+  // --- 6. Contact Form Handler (Web3Forms) ---
   const contactForm = document.getElementById('contactForm');
 
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const submitBtn = contactForm.querySelector('.form-submit .btn');
@@ -109,20 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       submitBtn.disabled = true;
 
-      // Collect form data — all field values sent via template
-      const templateParams = {
-        from_name: document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value,
+      // Collect form data
+      const formData = {
+        access_key: 'b3c26dde-510c-4fc9-ada6-6900b13e6ce7',
+        subject: 'New Contact Form Submission — Appify Portfolio',
+        from_name: 'Appify Portfolio Contact Form',
         first_name: document.getElementById('firstName').value,
         last_name: document.getElementById('lastName').value,
-        from_email: document.getElementById('email').value,
+        email: document.getElementById('email').value,
         phone: document.getElementById('phone').value || 'Not provided',
-        message: document.getElementById('message').value || 'No message provided',
-        to_email: 'contact@appifyapps.com'
+        message: document.getElementById('message').value || 'No message provided'
       };
 
-      // Send via EmailJS
-      emailjs.send('service_qbrbi42', 'template_4ir4lio', templateParams)
-        .then(() => {
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
           submitBtn.innerHTML = `
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             Message Sent Successfully!
@@ -137,23 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.style.boxShadow = '';
             contactForm.reset();
           }, 4000);
-        })
-        .catch((error) => {
-          console.error('EmailJS Error:', error);
-          submitBtn.innerHTML = `
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
-            Failed to send. Try again.
-          `;
-          submitBtn.style.background = '#EF4444';
-          submitBtn.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.3)';
+        } else {
+          throw new Error(result.message || 'Submission failed');
+        }
+      } catch (error) {
+        console.error('Web3Forms Error:', error);
+        submitBtn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          Failed to send. Try again.
+        `;
+        submitBtn.style.background = '#EF4444';
+        submitBtn.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.3)';
 
-          setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            submitBtn.style.background = '';
-            submitBtn.style.boxShadow = '';
-          }, 3000);
-        });
+        setTimeout(() => {
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          submitBtn.style.background = '';
+          submitBtn.style.boxShadow = '';
+        }, 3000);
+      }
     });
   }
 
