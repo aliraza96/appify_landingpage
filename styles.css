@@ -913,18 +913,31 @@ body {
   overflow: hidden;
 }
 
-.clients-grid {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 8px 4px 16px;
-  scrollbar-width: none;
-  scroll-snap-type: x mandatory;
+.clients-marquee {
+  overflow: hidden;
+  width: 100%;
+  padding: 8px 0 16px;
 }
 
-.clients-grid::-webkit-scrollbar {
-  display: none;
+.clients-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: marqueeScroll 30s linear infinite;
+}
+
+.clients-marquee:hover .clients-track {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .client-card {
@@ -941,7 +954,6 @@ body {
   text-align: center;
   box-shadow: var(--shadow-card);
   flex: 0 0 200px;
-  scroll-snap-align: start;
 }
 
 .client-card:hover {
@@ -1444,7 +1456,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .clients-grid {
+  .clients-track {
     gap: 16px;
   }
 
